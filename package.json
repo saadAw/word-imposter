@@ -1,7 +1,7 @@
 {
   "name": "word-imposter-glitch",
   "version": "1.0.0",
-  "description": "Word Imposter Setup Application, now with a proper server for Glitch.",
+  "description": "Word Imposter Setup Application, now a true real-time multiplayer game.",
   "type": "module",
   "main": "server/index.js",
   "scripts": {
@@ -12,8 +12,10 @@
   "dependencies": {
     "@google/genai": "^1.7.0",
     "express": "^4.19.2",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "socket.io": "^4.7.5",
+    "socket.io-client": "^4.7.5"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",

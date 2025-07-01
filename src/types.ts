@@ -8,16 +8,22 @@ export enum Status {
     REVEALED = 'REVEALED',
 }
 
+// Player information that is public to everyone in the lobby
 export interface Player {
-  id: string;
+  id: string; // This will be the socket.id
   name: string;
-  role: Role | null;
+  isHost: boolean;
 }
 
+// The overall state of the game, broadcast to all players
 export interface GameState {
   players: Player[];
-  secretWord: string;
-  hint: string;
-  imposterId: string | null;
   status: Status;
+  hostId: string | null;
+}
+
+// Secret information sent ONLY to a specific player
+export interface RoleInfo {
+    role: Role;
+    info: string; // Either the secret word or the hint
 }

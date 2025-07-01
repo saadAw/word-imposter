@@ -1,22 +1,21 @@
-# Word Imposter - Setup-Anwendung (Glitch-Version)
+# Word Imposter - Echtzeit-Multiplayer
 
-Dies ist eine minimalistische Web-Anwendung, um heimlich Rollen und Startinformationen (ein geheimes Wort oder einen Hinweis) für das Gesellschaftsspiel "Word Imposter" zuzuweisen. Sie nutzt die Google Gemini KI, um ein faires und unvorhersehbares Wort-Hinweis-Paar zu generieren, sodass selbst der Spielleiter nicht im Voraus eingeweiht ist.
+Dies ist eine Web-Anwendung für das Gesellschaftsspiel "Word Imposter". Sie ermöglicht es einer Gruppe von Spielern, über einen einfachen Link einer Spiel-Lobby beizutreten. Der Host startet das Spiel, und der Server weist jedem Spieler heimlich eine Rolle ("Normaler Spieler" oder "Imposter") und die entsprechende Information (geheimes Wort oder Hinweis) zu.
 
-Diese Version ist speziell für das Hosting auf Plattformen wie **Glitch** konfiguriert.
+Diese Version ist eine **echte Echtzeit-Anwendung**, die `socket.io` verwendet und perfekt für das Hosting auf Plattformen wie **Glitch** oder **Replit** geeignet ist.
 
-## 🚀 Spielprinzip
+## 🚀 So wird gespielt
 
-1.  Ein Spieler (der "Host" für diese Runde) öffnet die von Glitch bereitgestellte URL.
-2.  Er/Sie fügt die Namen aller Mitspieler hinzu.
-3.  Durch einen Klick auf "Spiel starten" wird der Server der Anwendung aufgerufen. Dieser fragt sicher die Google KI nach einem Wort/Hinweis.
-4.  Gleichzeitig wird zufällig einem Spieler die Rolle "Imposter" zugewiesen.
-5.  Die Anwendung zeigt für jeden Spieler eine Karte an. Jeder Spieler kann nun nacheinander zum Bildschirm kommen und sich seine geheime Rolle ansehen.
+1.  **Hosten & Link teilen:** Eine Person (der Host) stellt die Anwendung auf Glitch bereit (siehe Anleitung unten).
+2.  **Link teilen:** Der Host kopiert die URL der Glitch-Anwendung (z.B. `https://dein-projekt.glitch.me`) und teilt sie mit allen Mitspielern.
+3.  **Beitreten:** Jeder Spieler öffnet den Link auf seinem eigenen Gerät (Handy, PC etc.), gibt seinen Namen ein und tritt der Lobby bei. Alle sehen in Echtzeit, wer der Lobby beitritt.
+4.  **Spiel starten:** Der Host (der erste Spieler, der beigetreten ist) hat einen "Spiel starten"-Button. Sobald mindestens 3 Spieler in der Lobby sind, kann der Host das Spiel starten.
+5.  **Rollen erhalten:** Der Server weist jedem Spieler **privat** seine Rolle und sein geheimes Wort/Hinweis zu. Der Bildschirm jedes Spielers wird automatisch aktualisiert, um nur seine eigenen Informationen anzuzeigen.
+6.  **Spielen!** Jetzt kann das eigentliche Spiel (das Reden und Raten) beginnen.
+
+Es ist **kein Screen-Sharing** oder das Versenden von privaten Nachrichten mehr nötig!
 
 ## ❓ Wie hoste ich das Spiel auf Glitch?
-
-Die Anwendung ist jetzt so konfiguriert, dass sie auf Glitch sofort funktioniert.
-
-**Schritt-für-Schritt-Anleitung für Glitch:**
 
 1.  **Google Gemini API-Schlüssel holen:**
     *   Erhalte deinen kostenlosen API-Schlüssel vom [Google AI Studio](https://aistudio.google.com/app/apikey).
@@ -24,26 +23,21 @@ Die Anwendung ist jetzt so konfiguriert, dass sie auf Glitch sofort funktioniert
 
 2.  **Projekt auf Glitch importieren:**
     *   Gehe zu [glitch.com](https://glitch.com/) und erstelle ein Konto.
-    *   Erstelle ein neues Projekt: Klicke auf "New Project" -> "Import from GitHub".
-    *   Gib die URL des GitHub-Repositorys für dieses Projekt ein. Glitch wird den Code automatisch importieren.
+    *   Klicke auf "New Project" -> "Import from GitHub".
+    *   Gib die URL des GitHub-Repositorys für dieses Projekt ein.
 
 3.  **API-Schlüssel sicher hinterlegen:**
-    *   Warte, bis Glitch das Projekt eingerichtet hat. Klicke dann links im Menü auf "Secrets".
+    *   Klicke links im Menü auf "Secrets".
     *   Erstelle eine neue Variable mit dem Namen `API_KEY`.
     *   Füge als Wert deinen geheimen Google Gemini API-Schlüssel ein.
-    *   Glitch sorgt dafür, dass dieser Schlüssel sicher für den Server-Teil der App verfügbar ist, ohne im Code oder im Browser aufzutauchen.
+    *   Glitch sorgt dafür, dass dieser Schlüssel sicher nur für den Server verfügbar ist.
 
 4.  **Spielen:**
-    *   Glitch startet die Anwendung automatisch. Nach kurzer Zeit sollte oben im Fenster "Your app is running" erscheinen.
-    *   Klicke auf "Preview" -> "Preview in a new window", um die App zu öffnen.
-    *   Teile diesen Link mit niemandem, da er das Host-Interface ist.
-    *   **Verteilen:** Der Host fügt alle Spielernamen hinzu und startet das Spiel. Da es immer noch eine Frontend-Anwendung ist, die auf dem Gerät des Hosts läuft, müssen die Informationen an die Spieler verteilt werden. Am besten funktioniert das über Screen-Sharing (z.B. in Discord). Der Host teilt seinen Bildschirm, startet das Spiel und schickt dann jedem Spieler seine Rolle und sein Wort/Hinweis per **privater Nachricht**.
+    *   Glitch installiert die Abhängigkeiten und startet die Anwendung automatisch. Das kann einen Moment dauern.
+    *   Klicke auf "Preview" -> "Preview in a new window".
+    *   **Kopiere den Link aus der Adresszeile dieses neuen Fensters und teile ihn mit deinen Freunden!**
 
 ## 🛠️ Technische Struktur
 
-Falls es dich interessiert: Das Projekt wurde von einer reinen Frontend-Anwendung zu einer Anwendung mit einem kleinen **Backend-Server** (mit Express.js) umgebaut.
-
-*   **Frontend:** Der Code im `src`-Ordner ist die React-Anwendung, die du im Browser siehst. Er wird mit Vite gebaut.
-*   **Backend:** Der Code in `server/index.js` ist ein kleiner Server. Er liefert die gebaute Frontend-Anwendung aus und stellt den sicheren `/api/generate`-Endpunkt bereit, der mit dem `API_KEY` die Google-KI aufruft.
-
-Dieses Setup ist Standard für moderne Web-Anwendungen und sorgt für Sicherheit und Stabilität.
+*   **Backend (`server/index.js`):** Ein Node.js-Server mit Express und `socket.io`. Er ist die zentrale Autorität, verwaltet den Spielzustand, die Spieler und die Kommunikation mit der Gemini-KI.
+*   **Frontend (`src`):** Eine React-Anwendung (gebaut mit Vite), die sich als Client mit dem WebSocket-Server verbindet. Sie empfängt Zustands-Updates und sendet Aktionen an den Server.

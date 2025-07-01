@@ -1,28 +1,22 @@
 import { GoogleGenAI } from "@google/genai";
 
-if (!process.env.API_KEY) {
-    console.warn("API_KEY Umgebungsvariable nicht gesetzt. KI-Funktionen sind deaktiviert.");
-}
-
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || "DEIN_API_SCHLUESSEL_FEHLT" });
-
 const PROMPT = `
 Generiere ein Spiel-Setup für 'Word Imposter' auf Deutsch.
 1. Wähle ein komplett alltägliches, einfaches deutsches Substantiv.
-2. Erstelle einen extrem subtilen und vagen Hinweis für dieses Wort. Der Hinweis darf KEINE direkte Eigenschaft, Kategorie, Funktion oder Definition sein. Er sollte eine sehr breite Assoziation oder einen abstrakten Kontext darstellen, der zum Nachdenken anregt, aber die Möglichkeiten nicht zu sehr einschränkt.
-
+2. Erstelle einen extrem subtilen und vagen Hinweis für dieses Wort. Der Hinweis darf KEINE direkte Eigenschaft, Kategorie, Funktion oder Definition sein. Er sollte eine sehr breite Assoziation oder einen abstrakten Kontext darstellen.
 Beispiele für extrem subtile Hinweise:
-- Wort: 'Baum', Subtiler Hinweis: 'Kann groß sein' oder 'Steht manchmal'. NICHT: 'Hat Äste'.
-- Wort: 'Wasser', Subtiler Hinweis: 'Manchmal fließend' oder 'Kann kühl sein'. NICHT: 'Ist nass'.
-- Wort: 'Glück', Subtiler Hinweis: 'Ein Gefühl' oder 'Wird gesucht'. NICHT: 'Ist eine Emotion'.
-
+- Wort: 'Baum', Subtiler Hinweis: 'Kann groß sein'
+- Wort: 'Wasser', Subtiler Hinweis: 'Manchmal fließend'
 Gib das Ergebnis als einzelnes JSON-Objekt mit den Schlüsseln "secretWord" und "hint" zurück. Gib NUR das JSON-Objekt zurück.
 `;
 
 export const generateWordAndHint = async (): Promise<{ secretWord: string; hint: string }> => {
+    // API_KEY is expected to be available as an environment variable
     if (!process.env.API_KEY) {
+        console.error("API_KEY environment variable not set.");
         throw new Error("API-Schlüssel ist nicht konfiguriert.");
     }
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
     try {
         const response = await ai.models.generateContent({
@@ -33,10 +27,8 @@ export const generateWordAndHint = async (): Promise<{ secretWord: string; hint:
                 temperature: 1.0,
             },
         });
-        
+
         let jsonStr = response.text.trim();
-        
-        // Remove markdown fences if they exist
         const fenceRegex = /^```(\w*)?\s*\n?(.*?)\n?\s*```$/s;
         const match = jsonStr.match(fenceRegex);
         if (match && match[2]) {
@@ -45,16 +37,16 @@ export const generateWordAndHint = async (): Promise<{ secretWord: string; hint:
 
         const parsedData = JSON.parse(jsonStr);
 
-        if (typeof parsedData.secretWord === 'string' && typeof parsedData.hint === 'string') {
-            return {
-                secretWord: parsedData.secretWord,
-                hint: parsedData.hint,
-            };
+        if (parsedData && typeof parsedData.secretWord === 'string' && typeof parsedData.hint === 'string') {
+            return parsedData;
         } else {
             throw new Error("Ungültiges Datenformat von der KI-Antwort.");
         }
     } catch (e) {
-        console.error("Fehler beim Generieren des Inhalts oder Parsen von JSON von Gemini:", e);
-        throw new Error("Konnte keine gültige Antwort von der KI erhalten. Bitte überprüfe die Konsole für Details.");
+        console.error("Fehler bei der Generierung von Wort und Hinweis:", e);
+        if (e instanceof Error) {
+            throw new Error(`Konnte keine gültige Antwort von der KI erhalten. Grund: ${e.message}`);
+        }
+        throw new Error("Ein unbekannter Fehler ist bei der Kommunikation mit der KI aufgetreten.");
     }
 };
