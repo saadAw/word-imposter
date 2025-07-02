@@ -1,5 +1,5 @@
 {
-  "name": "Word Imposter - Setup",
-  "description": "Eine minimalistische Anwendung, um Spielern für das Spiel 'Word Imposter' heimlich Rollen und Startinformationen (ein geheimes Wort oder einen subtilen Hinweis) zuzuweisen. Sie verwendet KI, um das Wort und einen sehr vagen Hinweis zu generieren.",
+  "name": "Game Lobby",
+  "description": "A simple lobby application where players can enter their name and wait for others to join before starting a game.",
   "requestFramePermissions": []
 }
