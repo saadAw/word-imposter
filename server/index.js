@@ -4,7 +4,17 @@ import { fileURLToPath } from 'url';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { GoogleGenAI } from '@google/genai';
-import { Status } from '../src/types.js'; // Use .js extension for module imports in Node
+
+// --- Enums (copied from src/types.ts to make server standalone) ---
+const Role = {
+  REGULAR: 'Normaler Spieler',
+  IMPOSTER: 'Imposter',
+};
+
+const Status = {
+    SETUP: 'SETUP',
+    REVEALED: 'REVEALED',
+};
 
 // --- Game State (centralized on server) ---
 let gameState = {
@@ -34,11 +44,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // --- Gemini AI Setup ---
+let ai;
 const apiKey = process.env.API_KEY;
-if (!apiKey) {
-    console.warn("API_KEY environment variable not set. AI features will fail.");
+if (apiKey) {
+    ai = new GoogleGenAI({ apiKey });
+} else {
+    console.error("FATAL: API_KEY environment variable not set. AI features will be disabled.");
 }
-const ai = new GoogleGenAI(apiKey || "DUMMY_KEY");
 
 const PROMPT = `
 Generiere ein Spiel-Setup für 'Word Imposter' auf Deutsch.
@@ -61,10 +73,12 @@ io.on('connection', (socket) => {
         if (gameState.players.some(p => p.id === socket.id)) return;
 
         const isHost = gameState.players.length === 0;
+        const newPlayer = { id: socket.id, name: playerName, isHost };
+        
         if (isHost) {
             gameState.hostId = socket.id;
         }
-        gameState.players.push({ id: socket.id, name: playerName, isHost });
+        gameState.players.push(newPlayer);
 
         io.emit('gameStateUpdate', gameState); // Broadcast new state to all
         console.log(`Player ${playerName} (${socket.id}) joined. Host: ${gameState.hostId}`);
@@ -72,7 +86,11 @@ io.on('connection', (socket) => {
 
     socket.on('startGame', async () => {
         if (socket.id !== gameState.hostId || gameState.players.length < 3) {
-            // Only host can start, and only with enough players
+            return; // Only host can start, and only with enough players
+        }
+        if (!ai) {
+            console.error("Game start failed: GoogleGenAI client not initialized (missing API_KEY).");
+            io.to(gameState.hostId).emit('gameError', 'Server-Fehler: Der API-Schlüssel ist nicht konfiguriert.');
             return;
         }
 
@@ -101,7 +119,7 @@ io.on('connection', (socket) => {
             // Send private role info to each player
             gameState.players.forEach(player => {
                 const isImposter = player.id === imposterId;
-                const role = isImposter ? 'Imposter' : 'Normaler Spieler';
+                const role = isImposter ? Role.IMPOSTER : Role.REGULAR;
                 const info = isImposter ? gameState.hint : gameState.secretWord;
                 io.to(player.id).emit('roleInfo', { role, info });
             });
