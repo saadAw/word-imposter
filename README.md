@@ -1,4 +1,4 @@
-# Word Imposter - Echtzeit-Multiplayer
+# Word Imposter - Echtzeit-Multiplayer v3
 
 Dies ist eine Web-Anwendung für das Gesellschaftsspiel "Word Imposter". Sie ermöglicht es einer Gruppe von Spielern, über einen einfachen Link einer Spiel-Lobby beizutreten. Der Host startet das Spiel, und der Server weist jedem Spieler heimlich eine Rolle ("Normaler Spieler" oder "Imposter") und die entsprechende Information (geheimes Wort oder Hinweis) zu.
 
